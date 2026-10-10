@@ -79,7 +79,7 @@ export default function CreateUserDialog({ isOpen, onClose, onSuccess }: CreateU
 
     setIsLoading(true);
     try {
-      const response = await fetch('/api/admin/users', {
+      const response = await fetch('/api/users', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

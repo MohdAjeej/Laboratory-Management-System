@@ -3,7 +3,7 @@ import connectToDatabase from '@/lib/mongodb';
 import User from '@/models/User';
 import { withPermissionAuth } from '@/lib/middleware';
 import { Permission, UserRole } from '@/lib/permissions';
-import { hashPassword, generateRandomString } from '@/lib/auth';
+import { hashPassword, generateToken } from '@/lib/auth';
 import { auditUserAction, AuditAction } from '@/lib/audit';
 import { sendEmailNotification } from '@/lib/notifications';
 

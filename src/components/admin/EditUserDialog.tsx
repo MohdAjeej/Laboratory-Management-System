@@ -92,7 +92,7 @@ export default function EditUserDialog({ isOpen, onClose, onSuccess, user }: Edi
 
     setIsLoading(true);
     try {
-      const response = await fetch(`/api/admin/users/${user._id}`, {
+      const response = await fetch(`/api/users/${user._id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),

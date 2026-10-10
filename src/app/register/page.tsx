@@ -122,6 +122,7 @@ export default function RegisterPage() {
           email: formData.email,
           phone: formData.phone,
           password: formData.password,
+          agreeToTerms: formData.agreeToTerms,
         }),
       });
 

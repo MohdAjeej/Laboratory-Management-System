@@ -1,12 +1,22 @@
+import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { TestTube, Microscope, Clock, CheckCircle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { TestTube, Microscope, Clock, CheckCircle, ListChecks } from 'lucide-react';
 
 export default function TechnicianDashboard() {
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">Laboratory Technician Dashboard</h1>
-        <p className="text-gray-600">Sample processing and testing workflow</p>
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Laboratory Technician Dashboard</h1>
+          <p className="text-gray-600">Sample processing and testing workflow</p>
+        </div>
+        <Link href="/technician/samples">
+          <Button size="lg">
+            <ListChecks className="h-5 w-5 mr-2" />
+            View All Samples
+          </Button>
+        </Link>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -16,8 +26,8 @@ export default function TechnicianDashboard() {
             <TestTube className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">32</div>
-            <p className="text-xs text-muted-foreground">Received today</p>
+            <div className="text-2xl font-bold">0</div>
+            <p className="text-xs text-muted-foreground">Awaiting processing</p>
           </CardContent>
         </Card>
 
@@ -27,7 +37,7 @@ export default function TechnicianDashboard() {
             <Microscope className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">15</div>
+            <div className="text-2xl font-bold">0</div>
             <p className="text-xs text-muted-foreground">Currently running</p>
           </CardContent>
         </Card>
@@ -38,7 +48,7 @@ export default function TechnicianDashboard() {
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">8</div>
+            <div className="text-2xl font-bold">0</div>
             <p className="text-xs text-muted-foreground">Awaiting entry</p>
           </CardContent>
         </Card>
@@ -49,7 +59,7 @@ export default function TechnicianDashboard() {
             <CheckCircle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">47</div>
+            <div className="text-2xl font-bold">0</div>
             <p className="text-xs text-muted-foreground">Tests completed</p>
           </CardContent>
         </Card>
@@ -62,25 +72,51 @@ export default function TechnicianDashboard() {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <button className="p-4 bg-blue-50 hover:bg-blue-100 rounded-lg text-center transition-colors">
-              <TestTube className="h-8 w-8 text-blue-600 mx-auto mb-2" />
-              <p className="text-sm font-medium text-blue-900">Process Samples</p>
-            </button>
+            <Link href="/technician/samples">
+              <button className="w-full p-4 bg-blue-50 hover:bg-blue-100 rounded-lg text-center transition-colors">
+                <TestTube className="h-8 w-8 text-blue-600 mx-auto mb-2" />
+                <p className="text-sm font-medium text-blue-900">Process Samples</p>
+              </button>
+            </Link>
             
-            <button className="p-4 bg-green-50 hover:bg-green-100 rounded-lg text-center transition-colors">
-              <Microscope className="h-8 w-8 text-green-600 mx-auto mb-2" />
-              <p className="text-sm font-medium text-green-900">Run Tests</p>
-            </button>
+            <Link href="/technician/samples?status=RECEIVED">
+              <button className="w-full p-4 bg-green-50 hover:bg-green-100 rounded-lg text-center transition-colors">
+                <Microscope className="h-8 w-8 text-green-600 mx-auto mb-2" />
+                <p className="text-sm font-medium text-green-900">Run Tests</p>
+              </button>
+            </Link>
             
-            <button className="p-4 bg-purple-50 hover:bg-purple-100 rounded-lg text-center transition-colors">
-              <Clock className="h-8 w-8 text-purple-600 mx-auto mb-2" />
-              <p className="text-sm font-medium text-purple-900">Enter Results</p>
-            </button>
+            <Link href="/technician/results">
+              <button className="w-full p-4 bg-purple-50 hover:bg-purple-100 rounded-lg text-center transition-colors">
+                <Clock className="h-8 w-8 text-purple-600 mx-auto mb-2" />
+                <p className="text-sm font-medium text-purple-900">View Results</p>
+              </button>
+            </Link>
             
-            <button className="p-4 bg-orange-50 hover:bg-orange-100 rounded-lg text-center transition-colors">
-              <CheckCircle className="h-8 w-8 text-orange-600 mx-auto mb-2" />
-              <p className="text-sm font-medium text-orange-900">Quality Control</p>
-            </button>
+            <Link href="/technician/quality-control">
+              <button className="w-full p-4 bg-orange-50 hover:bg-orange-100 rounded-lg text-center transition-colors">
+                <CheckCircle className="h-8 w-8 text-orange-600 mx-auto mb-2" />
+                <p className="text-sm font-medium text-orange-900">Quality Control</p>
+              </button>
+            </Link>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Recent Samples</CardTitle>
+          <CardDescription>Latest samples received for processing</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="text-center text-gray-600 py-8">
+            <TestTube className="h-12 w-12 text-gray-400 mx-auto mb-2" />
+            <p className="text-sm">No samples to display</p>
+            <Link href="/technician/samples">
+              <Button className="mt-4" variant="outline">
+                View All Samples
+              </Button>
+            </Link>
           </div>
         </CardContent>
       </Card>

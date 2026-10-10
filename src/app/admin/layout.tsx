@@ -23,16 +23,32 @@ export default async function AdminLayout({
     redirect('/login');
   }
 
-  // Only ADMIN users can access the admin panel
-  if (user.role !== UserRole.ADMIN) {
-    redirect('/dashboard');
+  // Allow ADMIN, LAB_ADMIN, RECEPTIONIST, TECHNICIAN, PATHOLOGIST, and ACCOUNTANT
+  const allowedRoles = [
+    UserRole.ADMIN,
+    UserRole.LAB_ADMIN,
+    UserRole.RECEPTIONIST,
+    UserRole.TECHNICIAN,
+    UserRole.PATHOLOGIST,
+    UserRole.ACCOUNTANT
+  ];
+  
+  if (!allowedRoles.includes(user.role as UserRole)) {
+    // Hospital staff and patients go to their own panels
+    if (user.role === UserRole.HOSPITAL_STAFF) {
+      redirect('/hospital/dashboard');
+    } else if (user.role === UserRole.PATIENT) {
+      redirect('/patient/dashboard');
+    } else {
+      redirect('/login');
+    }
   }
 
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="flex h-screen overflow-hidden">
         {/* Sidebar */}
-        <AdminSidebar />
+        <AdminSidebar userRole={user.role as UserRole} />
         
         {/* Main content area */}
         <div className="flex-1 flex flex-col overflow-hidden">

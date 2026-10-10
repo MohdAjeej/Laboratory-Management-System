@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { 
@@ -30,12 +30,14 @@ import {
   Menu
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { UserRole, Permission, hasPermission } from '@/lib/permissions';
 
 interface SidebarItem {
   name: string;
   href: string;
   icon: React.ComponentType<{ className?: string }>;
   badge?: string;
+  requiredPermissions?: Permission[];
 }
 
 interface SidebarSection {
@@ -53,60 +55,60 @@ const sidebarSections: SidebarSection[] = [
   {
     name: 'User Management',
     items: [
-      { name: 'Users', href: '/admin/users', icon: Users },
-      { name: 'Staff', href: '/admin/staff', icon: UserCheck },
+      { name: 'Users', href: '/admin/users', icon: Users, requiredPermissions: [Permission.READ_USER] },
+      { name: 'Staff', href: '/admin/staff', icon: UserCheck, requiredPermissions: [Permission.READ_USER] },
     ],
   },
   {
     name: 'Healthcare Network',
     items: [
-      { name: 'Patients', href: '/admin/patients', icon: Users },
-      { name: 'Hospitals', href: '/admin/hospitals', icon: Hospital },
-      { name: 'Doctors', href: '/admin/doctors', icon: Stethoscope },
+      { name: 'Patients', href: '/admin/patients', icon: Users, requiredPermissions: [Permission.READ_PATIENT] },
+      { name: 'Hospitals', href: '/admin/hospitals', icon: Hospital, requiredPermissions: [Permission.READ_HOSPITAL] },
+      { name: 'Doctors', href: '/admin/doctors', icon: Stethoscope, requiredPermissions: [Permission.READ_DOCTOR] },
     ],
   },
   {
     name: 'Laboratory Operations',
     items: [
-      { name: 'Tests', href: '/admin/tests', icon: TestTube },
-      { name: 'Packages', href: '/admin/packages', icon: Package },
-      { name: 'Orders', href: '/admin/orders', icon: FileText },
-      { name: 'Samples', href: '/admin/samples', icon: Microscope },
-      { name: 'Results', href: '/admin/results', icon: BarChart3 },
-      { name: 'Reports', href: '/admin/reports', icon: FileSearch },
+      { name: 'Tests', href: '/admin/tests', icon: TestTube, requiredPermissions: [Permission.READ_TEST] },
+      { name: 'Packages', href: '/admin/packages', icon: Package, requiredPermissions: [Permission.READ_TEST] },
+      { name: 'Orders', href: '/admin/orders', icon: FileText, requiredPermissions: [Permission.READ_ORDER] },
+      { name: 'Samples', href: '/admin/samples', icon: Microscope, requiredPermissions: [Permission.READ_SAMPLE] },
+      { name: 'Results', href: '/admin/results', icon: BarChart3, requiredPermissions: [Permission.READ_RESULT] },
+      { name: 'Reports', href: '/admin/reports', icon: FileSearch, requiredPermissions: [Permission.READ_REPORT] },
     ],
   },
   {
     name: 'Finance & Operations',
     items: [
-      { name: 'Billing', href: '/admin/billing', icon: DollarSign },
-      { name: 'Inventory', href: '/admin/inventory', icon: Archive },
-      { name: 'Equipment', href: '/admin/equipment', icon: Wrench },
+      { name: 'Billing', href: '/admin/billing', icon: DollarSign, requiredPermissions: [Permission.READ_INVOICE] },
+      { name: 'Inventory', href: '/admin/inventory', icon: Archive, requiredPermissions: [Permission.READ_INVENTORY] },
+      { name: 'Equipment', href: '/admin/equipment', icon: Wrench, requiredPermissions: [Permission.READ_EQUIPMENT] },
     ],
   },
   {
     name: 'Quality & Compliance',
     items: [
-      { name: 'Quality Control', href: '/admin/quality-control', icon: Shield },
-      { name: 'Audit Logs', href: '/admin/audit-logs', icon: FileSearch },
+      { name: 'Quality Control', href: '/admin/quality-control', icon: Shield, requiredPermissions: [Permission.READ_QC] },
+      { name: 'Audit Logs', href: '/admin/audit-logs', icon: FileSearch, requiredPermissions: [Permission.READ_AUDIT_LOGS] },
     ],
   },
   {
     name: 'Analytics & Insights',
     items: [
-      { name: 'Analytics', href: '/admin/analytics', icon: TrendingUp },
+      { name: 'Analytics', href: '/admin/analytics', icon: TrendingUp, requiredPermissions: [Permission.READ_ANALYTICS] },
       { name: 'Notifications', href: '/admin/notifications', icon: Bell },
     ],
   },
   {
     name: 'System',
     items: [
-      { name: 'Settings', href: '/admin/settings', icon: Settings },
+      { name: 'Settings', href: '/admin/settings', icon: Settings, requiredPermissions: [Permission.READ_SETTINGS] },
     ],
   },
 ];
 
-export default function AdminSidebar() {
+export default function AdminSidebar({ userRole }: { userRole?: UserRole }) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const pathname = usePathname();
@@ -120,6 +122,24 @@ export default function AdminSidebar() {
     }
     return pathname.startsWith(href);
   };
+
+  // Filter sidebar items based on user role permissions
+  const canAccessItem = (item: SidebarItem): boolean => {
+    if (!userRole || !item.requiredPermissions || item.requiredPermissions.length === 0) {
+      return true; // No permissions required or no role specified
+    }
+    
+    // User must have at least one of the required permissions
+    return item.requiredPermissions.some(permission => 
+      hasPermission(userRole, permission)
+    );
+  };
+
+  // Filter sections to only show items user has access to
+  const visibleSections = sidebarSections.map(section => ({
+    ...section,
+    items: section.items.filter(canAccessItem)
+  })).filter(section => section.items.length > 0);
 
   return (
     <>
@@ -182,7 +202,7 @@ export default function AdminSidebar() {
         {/* Navigation */}
         <nav className="flex-1 overflow-y-auto p-4">
           <div className="space-y-6">
-            {sidebarSections.map((section, sectionIndex) => (
+            {visibleSections.map((section, sectionIndex) => (
               <div key={section.name}>
                 {!isCollapsed && (
                   <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">

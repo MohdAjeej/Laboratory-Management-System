@@ -50,8 +50,9 @@ const HospitalSchema = new Schema<IHospital>({
   },
   contactPerson: {
     type: String,
-    required: true,
+    required: false,
     trim: true,
+    default: '',
   },
   phone: {
     type: String,
@@ -99,14 +100,13 @@ HospitalSchema.index({ email: 1 });
 HospitalSchema.index({ isActive: 1 });
 HospitalSchema.index({ createdAt: -1 });
 
-// Pre-save middleware to generate hospitalId (will be implemented later)
-// HospitalSchema.pre('save', async function(next) {
-//   if (this.isNew && !this.hospitalId) {
-//     const count = await mongoose.model('Hospital').countDocuments();
-//     this.hospitalId = `HSP-${new Date().getFullYear()}-${(count + 1).toString().padStart(6, '0')}`;
-//   }
-//   next();
-// });
+// Pre-save middleware to generate hospitalId
+HospitalSchema.pre('save', async function() {
+  if (this.isNew && !this.hospitalId) {
+    const count = await mongoose.model('Hospital').countDocuments();
+    this.hospitalId = `HSP-${new Date().getFullYear()}-${(count + 1).toString().padStart(6, '0')}`;
+  }
+});
 
 // Static methods
 HospitalSchema.statics.findByHospitalId = function(hospitalId: string) {

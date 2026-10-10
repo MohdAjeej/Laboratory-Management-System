@@ -184,12 +184,11 @@ TestResultSchema.index({ verifiedAt: -1 });
 TestResultSchema.index({ createdAt: -1 });
 
 // Pre-save middleware to generate resultId
-TestResultSchema.pre('save', async function(next) {
+TestResultSchema.pre('save', async function() {
   if (this.isNew && !this.resultId) {
     const count = await mongoose.model('TestResult').countDocuments();
     this.resultId = `RES-${new Date().getFullYear()}-${(count + 1).toString().padStart(6, '0')}`;
   }
-  next();
 });
 
 // Instance methods

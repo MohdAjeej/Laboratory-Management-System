@@ -90,20 +90,36 @@ export default function UsersPage() {
         page: currentPage.toString(),
         limit: '20',
         search: filters.search,
-        role: filters.role !== 'all' ? filters.role : '',
-        status: filters.status !== 'all' ? filters.status : '',
       });
 
-      const response = await fetch(`/api/admin/users?${queryParams}`);
+      // Add role filter if not 'all'
+      if (filters.role !== 'all') {
+        queryParams.append('role', filters.role);
+      }
+
+      // Add status filter if not 'all'
+      if (filters.status !== 'all') {
+        queryParams.append('isActive', filters.status === 'active' ? 'true' : 'false');
+      }
+
+      const response = await fetch(`/api/users?${queryParams}`);
       if (response.ok) {
         const data = await response.json();
-        setUsers(data.users);
-        setTotalPages(data.totalPages);
+        if (data.success && data.data) {
+          setUsers(data.data.users || []);
+          setTotalPages(data.data.pagination?.pages || 1);
+        } else {
+          console.error('Invalid response format:', data);
+          setUsers([]);
+        }
       } else {
-        console.error('Failed to fetch users');
+        const errorData = await response.json();
+        console.error('Failed to fetch users:', errorData);
+        setUsers([]);
       }
     } catch (error) {
       console.error('Error fetching users:', error);
+      setUsers([]);
     } finally {
       setLoading(false);
     }
@@ -130,7 +146,7 @@ export default function UsersPage() {
 
   const handleToggleStatus = async (userId: string, currentStatus: boolean) => {
     try {
-      const response = await fetch(`/api/admin/users/${userId}`, {
+      const response = await fetch(`/api/users/${userId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ isActive: !currentStatus }),
@@ -138,9 +154,14 @@ export default function UsersPage() {
 
       if (response.ok) {
         fetchUsers();
+      } else {
+        const errorData = await response.json();
+        console.error('Error toggling user status:', errorData);
+        alert(errorData.error || 'Failed to update user status');
       }
     } catch (error) {
       console.error('Error toggling user status:', error);
+      alert('Failed to update user status');
     }
   };
 
@@ -150,15 +171,20 @@ export default function UsersPage() {
     }
 
     try {
-      const response = await fetch(`/api/admin/users/${userId}`, {
+      const response = await fetch(`/api/users/${userId}`, {
         method: 'DELETE',
       });
 
       if (response.ok) {
         fetchUsers();
+      } else {
+        const errorData = await response.json();
+        console.error('Error deleting user:', errorData);
+        alert(errorData.error || 'Failed to delete user');
       }
     } catch (error) {
       console.error('Error deleting user:', error);
+      alert('Failed to delete user');
     }
   };
 

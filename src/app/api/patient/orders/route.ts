@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getCurrentUser } from '@/lib/auth';
-import { connectDB } from '@/lib/mongodb';
+import connectToDatabase from '@/lib/mongodb';
 import Order from '@/models/Order';
 import Patient from '@/models/Patient';
 import { UserRole } from '@/lib/permissions';
@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    await connectDB();
+    await connectToDatabase();
 
     // Find patient record by user email
     const patient = await Patient.findOne({ email: user.email });

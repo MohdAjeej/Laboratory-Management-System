@@ -128,7 +128,7 @@ SampleSchema.index({ receiptDate: -1 });
 SampleSchema.index({ createdAt: -1 });
 
 // Pre-save middleware to generate sampleId and codes
-SampleSchema.pre('save', async function(next) {
+SampleSchema.pre('save', async function() {
   if (this.isNew) {
     if (!this.sampleId) {
       const count = await mongoose.model('Sample').countDocuments();
@@ -143,7 +143,6 @@ SampleSchema.pre('save', async function(next) {
       this.qrCode = `${process.env.APP_URL}/samples/${this.sampleId}`;
     }
   }
-  next();
 });
 
 // Instance method to add event

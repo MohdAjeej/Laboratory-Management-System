@@ -6,12 +6,12 @@ import { UserRole } from '@/lib/permissions';
 export function getDashboardRoute(role: UserRole): string {
   const roleRoutes: Record<UserRole, string> = {
     [UserRole.ADMIN]: '/admin',
-    [UserRole.LAB_ADMIN]: '/dashboard',
+    [UserRole.LAB_ADMIN]: '/lab-admin',
     [UserRole.RECEPTIONIST]: '/receptionist/dashboard',
     [UserRole.TECHNICIAN]: '/technician/dashboard',
     [UserRole.PATHOLOGIST]: '/pathologist/dashboard',
-    [UserRole.ACCOUNTANT]: '/accountant/dashboard',
-    [UserRole.HOSPITAL_STAFF]: '/hospital/dashboard',
+    [UserRole.ACCOUNTANT]: '/accountant',
+    [UserRole.HOSPITAL_STAFF]: '/hospital',
     [UserRole.PATIENT]: '/patient/dashboard',
   };
 
@@ -30,6 +30,7 @@ export function canAccessRoute(userRole: UserRole, route: string): boolean {
   // Define route access patterns
   const routePatterns: Record<string, UserRole[]> = {
     '/admin': [UserRole.ADMIN],
+    '/lab-admin': [UserRole.LAB_ADMIN],
     '/dashboard': [
       UserRole.LAB_ADMIN,
       UserRole.RECEPTIONIST,
@@ -91,12 +92,12 @@ export function getRoleNavigation(role: UserRole): Array<{ name: string; href: s
       { name: 'Settings', href: '/admin/settings' },
     ],
     [UserRole.LAB_ADMIN]: [
-      { name: 'Dashboard', href: '/dashboard' },
-      { name: 'Orders', href: '/orders' },
-      { name: 'Samples', href: '/samples' },
-      { name: 'Results', href: '/results' },
-      { name: 'Reports', href: '/reports' },
-      { name: 'Quality Control', href: '/qc' },
+      { name: 'Dashboard', href: '/lab-admin' },
+      { name: 'Orders', href: '/lab-admin/orders' },
+      { name: 'Samples', href: '/lab-admin/samples' },
+      { name: 'Results', href: '/lab-admin/results' },
+      { name: 'Reports', href: '/lab-admin/reports' },
+      { name: 'Quality Control', href: '/lab-admin/qc' },
     ],
     [UserRole.RECEPTIONIST]: [
       { name: 'Dashboard', href: '/receptionist/dashboard' },
@@ -119,13 +120,13 @@ export function getRoleNavigation(role: UserRole): Array<{ name: string; href: s
       { name: 'Consultations', href: '/pathologist/consultations' },
     ],
     [UserRole.ACCOUNTANT]: [
-      { name: 'Dashboard', href: '/accountant/dashboard' },
+      { name: 'Dashboard', href: '/accountant' },
       { name: 'Billing', href: '/accountant/billing' },
       { name: 'Payments', href: '/accountant/payments' },
       { name: 'Financial Reports', href: '/accountant/reports' },
     ],
     [UserRole.HOSPITAL_STAFF]: [
-      { name: 'Dashboard', href: '/hospital/dashboard' },
+      { name: 'Dashboard', href: '/hospital' },
       { name: 'Patients', href: '/hospital/patients' },
       { name: 'Orders', href: '/hospital/orders' },
       { name: 'Reports', href: '/hospital/reports' },

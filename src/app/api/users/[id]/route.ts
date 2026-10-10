@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/mongodb';
 import User from '@/models/User';
+import Hospital from '@/models/Hospital'; // Import Hospital model for populate
 import { withAuth, withPermissionAuth } from '@/lib/middleware';
 import { Permission, UserRole } from '@/lib/permissions';
 import { updateUserSchema } from '@/lib/validation';

@@ -15,26 +15,53 @@ import Patient from '../src/models/Patient';
 import Hospital from '../src/models/Hospital';
 import Doctor from '../src/models/Doctor';
 import Test from '../src/models/Test';
+import TestPackage from '../src/models/TestPackage';
+import Supplier from '../src/models/Supplier';
+import InventoryItem from '../src/models/InventoryItem';
+import Equipment from '../src/models/Equipment';
+import QCLot from '../src/models/QCLot';
+import SystemSettings from '../src/models/SystemSettings';
 
 async function seed() {
   try {
     console.log('🌱 Starting database seeding...');
+    console.log('📦 Using idempotent seeding - checking for existing data...');
     
     await connectToDatabase();
     
-    // Clear existing data
-    console.log('🧹 Clearing existing data...');
-    await User.deleteMany({});
-    await Patient.deleteMany({});
-    await Hospital.deleteMany({});
-    await Doctor.deleteMany({});
-    await Test.deleteMany({});
+    // Check if data already exists
+    const userCount = await User.countDocuments();
+    const hospitalCount = await Hospital.countDocuments();
+    const testCount = await Test.countDocuments();
     
-    // Create Users
-    console.log('👥 Creating users...');
+    if (userCount > 0 || hospitalCount > 0 || testCount > 0) {
+      console.log('⚠️  Database already contains data:');
+      console.log(`   - Users: ${userCount}`);
+      console.log(`   - Hospitals: ${hospitalCount}`);
+      console.log(`   - Tests: ${testCount}`);
+      console.log('');
+      console.log('Seeding will only create missing demo accounts and system settings.');
+      console.log('To reset database, manually delete collections first.');
+    } else {
+      // Clear ALL existing data only if database is empty
+      console.log('🧹 Database is empty - performing full seed...');
+      await User.deleteMany({});
+      await Patient.deleteMany({});
+      await Hospital.deleteMany({});
+      await Doctor.deleteMany({});
+      await Test.deleteMany({});
+      await TestPackage.deleteMany({});
+      await Supplier.deleteMany({});
+      await InventoryItem.deleteMany({});
+      await Equipment.deleteMany({});
+      await QCLot.deleteMany({});
+    }
+    
+    // Create Users (idempotent - only create if not exists)
+    console.log('👥 Creating/checking demo users...');
     const hashedPassword = await hashPassword('Admin@123');
     
-    const users = [
+    const usersData = [
       {
         userId: 'USR-2026-000001',
         email: 'admin@lims.com',
@@ -98,15 +125,22 @@ async function seed() {
     ];
     
     const createdUsers = [];
-    for (const userData of users) {
-      const user = await User.create(userData);
+    for (const userData of usersData) {
+      // Check if user already exists
+      let user = await User.findOne({ email: userData.email });
+      if (!user) {
+        user = await User.create(userData);
+        console.log(`  ✅ Created user: ${userData.email}`);
+      } else {
+        console.log(`  ⏭️  User already exists: ${userData.email}`);
+      }
       createdUsers.push(user);
     }
-    console.log(`✅ Created ${createdUsers.length} users`);
+    console.log(`✅ Total users: ${createdUsers.length}`);
     
-    // Create Hospitals
-    console.log('🏥 Creating hospitals...');
-    const hospitals = [
+    // Create Hospitals (idempotent)
+    console.log('🏥 Creating/checking hospitals...');
+    const hospitalsData = [
       {
         hospitalId: 'HSP-2026-000001',
         name: 'City General Hospital',
@@ -167,15 +201,21 @@ async function seed() {
     ];
     
     const createdHospitals = [];
-    for (const hospitalData of hospitals) {
-      const hospital = await Hospital.create(hospitalData);
+    for (const hospitalData of hospitalsData) {
+      let hospital = await Hospital.findOne({ hospitalId: hospitalData.hospitalId });
+      if (!hospital) {
+        hospital = await Hospital.create(hospitalData);
+        console.log(`  ✅ Created hospital: ${hospitalData.name}`);
+      } else {
+        console.log(`  ⏭️  Hospital already exists: ${hospitalData.name}`);
+      }
       createdHospitals.push(hospital);
     }
-    console.log(`✅ Created ${createdHospitals.length} hospitals`);
+    console.log(`✅ Total hospitals: ${createdHospitals.length}`);
     
-    // Create Hospital Staff Users
-    console.log('👨‍⚕️ Creating hospital staff...');
-    const hospitalStaff = [
+    // Create Hospital Staff Users (idempotent)
+    console.log('👨‍⚕️ Creating/checking hospital staff...');
+    const hospitalStaffData = [
       {
         userId: 'USR-2026-000007',
         email: 'staff@citygeneral.com',
@@ -201,15 +241,21 @@ async function seed() {
     ];
     
     const createdStaff = [];
-    for (const staffData of hospitalStaff) {
-      const staff = await User.create(staffData);
+    for (const staffData of hospitalStaffData) {
+      let staff = await User.findOne({ email: staffData.email });
+      if (!staff) {
+        staff = await User.create(staffData);
+        console.log(`  ✅ Created hospital staff: ${staffData.email}`);
+      } else {
+        console.log(`  ⏭️  Hospital staff already exists: ${staffData.email}`);
+      }
       createdStaff.push(staff);
     }
-    console.log(`✅ Created ${createdStaff.length} hospital staff`);
+    console.log(`✅ Total hospital staff: ${createdStaff.length}`);
     
-    // Create Patient Users (from registration)
-    console.log('👤 Creating patient user accounts...');
-    const patientUsers = [
+    // Create Patient Users (from registration) - idempotent
+    console.log('👤 Creating/checking patient user accounts...');
+    const patientUsersData = [
       {
         userId: 'PAT-2026-000001',
         email: 'raj.patel@example.com',
@@ -233,15 +279,21 @@ async function seed() {
     ];
     
     const createdPatientUsers = [];
-    for (const patientUserData of patientUsers) {
-      const patientUser = await User.create(patientUserData);
+    for (const patientUserData of patientUsersData) {
+      let patientUser = await User.findOne({ email: patientUserData.email });
+      if (!patientUser) {
+        patientUser = await User.create(patientUserData);
+        console.log(`  ✅ Created patient user: ${patientUserData.email}`);
+      } else {
+        console.log(`  ⏭️  Patient user already exists: ${patientUserData.email}`);
+      }
       createdPatientUsers.push(patientUser);
     }
-    console.log(`✅ Created ${createdPatientUsers.length} patient users`);
+    console.log(`✅ Total patient users: ${createdPatientUsers.length}`);
     
-    // Create Doctors
-    console.log('👨‍⚕️ Creating doctors...');
-    const doctors = [
+    // Create Doctors (idempotent)
+    console.log('👨‍⚕️ Creating/checking doctors...');
+    const doctorsData = [
       {
         doctorId: 'DOC-2026-000001',
         firstName: 'Dr. Amit',
@@ -289,15 +341,21 @@ async function seed() {
     ];
     
     const createdDoctors = [];
-    for (const doctorData of doctors) {
-      const doctor = await Doctor.create(doctorData);
+    for (const doctorData of doctorsData) {
+      let doctor = await Doctor.findOne({ doctorId: doctorData.doctorId });
+      if (!doctor) {
+        doctor = await Doctor.create(doctorData);
+        console.log(`  ✅ Created doctor: ${doctorData.firstName} ${doctorData.lastName}`);
+      } else {
+        console.log(`  ⏭️  Doctor already exists: ${doctorData.firstName} ${doctorData.lastName}`);
+      }
       createdDoctors.push(doctor);
     }
-    console.log(`✅ Created ${createdDoctors.length} doctors`);
+    console.log(`✅ Total doctors: ${createdDoctors.length}`);
     
-    // Create Tests
-    console.log('🧪 Creating tests...');
-    const tests = [
+    // Create Tests (idempotent)
+    console.log('🧪 Creating/checking tests...');
+    const testsData = [
       {
         testId: 'TST-2026-000001',
         name: 'Complete Blood Count (CBC)',
@@ -472,15 +530,21 @@ async function seed() {
     ];
     
     const createdTests = [];
-    for (const testData of tests) {
-      const test = await Test.create(testData);
+    for (const testData of testsData) {
+      let test = await Test.findOne({ testId: testData.testId });
+      if (!test) {
+        test = await Test.create(testData);
+        console.log(`  ✅ Created test: ${testData.name}`);
+      } else {
+        console.log(`  ⏭️  Test already exists: ${testData.name}`);
+      }
       createdTests.push(test);
     }
-    console.log(`✅ Created ${createdTests.length} tests`);
+    console.log(`✅ Total tests: ${createdTests.length}`);
     
-    // Create Patients (with link to user accounts)
-    console.log('👤 Creating patient records...');
-    const patients = [
+    // Create Patients (with link to user accounts) - idempotent
+    console.log('👤 Creating/checking patient records...');
+    const patientsData = [
       {
         patientId: 'P-2026-000001',
         userId: createdPatientUsers[0]._id,
@@ -569,11 +633,44 @@ async function seed() {
     ];
     
     const createdPatients = [];
-    for (const patientData of patients) {
-      const patient = await Patient.create(patientData);
+    for (const patientData of patientsData) {
+      let patient = await Patient.findOne({ patientId: patientData.patientId });
+      if (!patient) {
+        patient = await Patient.create(patientData);
+        console.log(`  ✅ Created patient: ${patientData.firstName} ${patientData.lastName}`);
+      } else {
+        console.log(`  ⏭️  Patient already exists: ${patientData.firstName} ${patientData.lastName}`);
+      }
       createdPatients.push(patient);
     }
-    console.log(`✅ Created ${createdPatients.length} patients`);
+    console.log(`✅ Total patients: ${createdPatients.length}`);
+    
+    // Create System Settings (idempotent - only create if not exists)
+    console.log('⚙️  Creating/checking system settings...');
+    let systemSettings = await SystemSettings.findOne();
+    
+    if (!systemSettings) {
+      systemSettings = await SystemSettings.create({
+        labInfo: {
+          name: process.env.LAB_NAME || 'Modern Diagnostic Laboratory',
+          code: 'MDL',
+          registrationNumber: 'REG-2024-001',
+          accreditation: 'NABL',
+          address: '123 Healthcare Street, Medical District',
+          city: 'Mumbai',
+          state: 'Maharashtra',
+          pincode: '400001',
+          country: 'India',
+          phone: '+91 22 1234 5678',
+          email: 'info@modernlab.com',
+          website: 'www.modernlab.com',
+        },
+        updatedBy: createdUsers[0]._id, // Admin user
+      });
+      console.log('  ✅ Created system settings');
+    } else {
+      console.log('  ⏭️  System settings already exist');
+    }
     
     console.log('🎉 Database seeding completed successfully!');
     console.log('\n📋 Demo Login Credentials:');
@@ -589,13 +686,14 @@ async function seed() {
     console.log('Patient 1: raj.patel@example.com / Admin@123');
     console.log('Patient 2: priya.singh@example.com / Admin@123');
     
-    console.log('\n📊 Created Data Summary:');
-    console.log('========================');
-    console.log(`Users: ${createdUsers.length + createdStaff.length + createdPatientUsers.length}`);
-    console.log(`Hospitals: ${createdHospitals.length}`);
-    console.log(`Doctors: ${createdDoctors.length}`);
-    console.log(`Tests: ${createdTests.length}`);
-    console.log(`Patients: ${createdPatients.length}`);
+    console.log('\n📊 Database Summary:');
+    console.log('====================');
+    console.log(`Users: ${await User.countDocuments()}`);
+    console.log(`Hospitals: ${await Hospital.countDocuments()}`);
+    console.log(`Doctors: ${await Doctor.countDocuments()}`);
+    console.log(`Tests: ${await Test.countDocuments()}`);
+    console.log(`Patients: ${await Patient.countDocuments()}`);
+    console.log(`System Settings: ${systemSettings ? '1' : '0'}`);
     
   } catch (error) {
     console.error('❌ Seeding failed:', error);

@@ -144,7 +144,7 @@ OrderSchema.index({ createdAt: -1 });
 OrderSchema.index({ createdBy: 1 });
 
 // Pre-save middleware to generate orderId and calculate totals
-OrderSchema.pre('save', async function(next) {
+OrderSchema.pre('save', async function() {
   if (this.isNew && !this.orderId) {
     const count = await mongoose.model('Order').countDocuments();
     this.orderId = `ORD-${new Date().getFullYear()}-${(count + 1).toString().padStart(6, '0')}`;
@@ -161,8 +161,6 @@ OrderSchema.pre('save', async function(next) {
 
   const totalAfterDiscount = this.subtotal - itemDiscount - this.discount;
   this.total = totalAfterDiscount + this.tax;
-
-  next();
 });
 
 // Static methods

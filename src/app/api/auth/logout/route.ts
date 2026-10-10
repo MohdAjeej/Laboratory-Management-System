@@ -19,8 +19,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Clear auth cookie
-    const response = NextResponse.json({ success: true });
+    // Clear auth cookie and redirect to login
+    const response = NextResponse.redirect(new URL('/login', request.url));
     response.cookies.set('auth-token', '', {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -32,9 +32,15 @@ export async function POST(request: NextRequest) {
     return response;
   } catch (error) {
     console.error('Logout error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    // Even on error, redirect to login and clear cookie
+    const response = NextResponse.redirect(new URL('/login', request.url));
+    response.cookies.set('auth-token', '', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 0,
+      path: '/',
+    });
+    return response;
   }
 }

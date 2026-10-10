@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getCurrentUser } from '@/lib/auth';
-import { connectDB } from '@/lib/mongodb';
+import connectToDatabase from '@/lib/mongodb';
 import Patient from '@/models/Patient';
 import User from '@/models/User';
 import { UserRole } from '@/lib/permissions';
@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    await connectDB();
+    await connectToDatabase();
 
     // Find patient record by user email
     const patient = await Patient.findOne({ email: user.email }).lean();
@@ -89,7 +89,7 @@ export async function PATCH(request: NextRequest) {
     const body = await request.json();
     const { phone, address, emergencyContact, medicalHistory, allergies, currentMedications } = body;
 
-    await connectDB();
+    await connectToDatabase();
 
     // Find and update patient record
     const patient = await Patient.findOne({ email: user.email });

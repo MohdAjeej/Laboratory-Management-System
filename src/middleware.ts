@@ -22,11 +22,14 @@ export const config = {
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Skip middleware for public routes and API routes that don't need auth
+  // Skip middleware for API routes - they handle their own auth
+  if (pathname.startsWith('/api')) {
+    return NextResponse.next();
+  }
+
+  // Skip middleware for public routes
   if (
     pathname.startsWith('/_next') ||
-    pathname.startsWith('/api/auth/register') ||
-    pathname.startsWith('/api/auth/login') ||
     pathname === '/register' ||
     pathname === '/login' ||
     pathname === '/forgot-password' ||

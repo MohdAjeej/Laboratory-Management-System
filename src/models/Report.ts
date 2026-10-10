@@ -184,12 +184,11 @@ ReportSchema.index({ publishedAt: -1 });
 ReportSchema.index({ createdAt: -1 });
 
 // Pre-save middleware to generate reportId
-ReportSchema.pre('save', async function(next) {
+ReportSchema.pre('save', async function() {
   if (this.isNew && !this.reportId) {
     const count = await mongoose.model('Report').countDocuments();
     this.reportId = `RPT-${new Date().getFullYear()}-${(count + 1).toString().padStart(6, '0')}`;
   }
-  next();
 });
 
 // Instance methods

@@ -57,7 +57,6 @@ export enum Permission {
   READ_TEST = 'READ_TEST',
   UPDATE_TEST = 'UPDATE_TEST',
   DELETE_TEST = 'DELETE_TEST',
-  CREATE_TEST_PACKAGE = 'CREATE_TEST_PACKAGE',
 
   // Orders
   CREATE_ORDER = 'CREATE_ORDER',
@@ -159,7 +158,6 @@ export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     Permission.CREATE_TEST,
     Permission.READ_TEST,
     Permission.UPDATE_TEST,
-    Permission.CREATE_TEST_PACKAGE,
     
     // Orders & Samples
     Permission.CREATE_ORDER,

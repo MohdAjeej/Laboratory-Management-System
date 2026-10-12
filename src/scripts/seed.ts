@@ -7,7 +7,6 @@ import Patient from '../models/Patient';
 import Hospital from '../models/Hospital';
 import Doctor from '../models/Doctor';
 import Test from '../models/Test';
-import TestPackage from '../models/TestPackage';
 import SystemSettings, { DEFAULT_SETTINGS } from '../models/SystemSettings';
 
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/lims';
@@ -382,72 +381,6 @@ async function seed() {
       console.log(`   ⏭️  Test exists: ${testData.name}`);
     }
     testDocs.push(test);
-  }
-
-  // ──────────────── Test Packages ────────────────
-  console.log('\n📦 Seeding test packages...');
-  const packages = [
-    {
-      packageId: 'PKG-2026-000001',
-      name: 'Basic Health Checkup',
-      code: 'BHC',
-      description: 'Essential health screening package',
-      category: 'Health Checkup',
-      tests: [
-        { testId: testDocs[0]._id, displayOrder: 1 }, // CBC
-        { testId: testDocs[1]._id, displayOrder: 2 }, // Glucose Fasting
-        { testId: testDocs[6]._id, displayOrder: 3 }, // Urine RM
-      ],
-      price: 599,
-      individualTotal: 800,
-      turnaroundTime: 6,
-    },
-    {
-      packageId: 'PKG-2026-000002',
-      name: 'Comprehensive Health Package',
-      code: 'CHP',
-      description: 'Full body health assessment including all major organ functions',
-      category: 'Health Checkup',
-      tests: [
-        { testId: testDocs[0]._id, displayOrder: 1 }, // CBC
-        { testId: testDocs[1]._id, displayOrder: 2 }, // Glucose
-        { testId: testDocs[2]._id, displayOrder: 3 }, // Lipid
-        { testId: testDocs[3]._id, displayOrder: 4 }, // Thyroid
-        { testId: testDocs[4]._id, displayOrder: 5 }, // LFT
-        { testId: testDocs[5]._id, displayOrder: 6 }, // KFT
-        { testId: testDocs[6]._id, displayOrder: 7 }, // Urine
-        { testId: testDocs[7]._id, displayOrder: 8 }, // HbA1c
-      ],
-      price: 2499,
-      individualTotal: 4450,
-      turnaroundTime: 12,
-    },
-    {
-      packageId: 'PKG-2026-000003',
-      name: 'Diabetes Panel',
-      code: 'DIAB',
-      description: 'Complete diabetes monitoring panel',
-      category: 'Disease Panel',
-      tests: [
-        { testId: testDocs[1]._id, displayOrder: 1 }, // Glucose
-        { testId: testDocs[7]._id, displayOrder: 2 }, // HbA1c
-        { testId: testDocs[5]._id, displayOrder: 3 }, // KFT
-        { testId: testDocs[2]._id, displayOrder: 4 }, // Lipid
-      ],
-      price: 1599,
-      individualTotal: 2150,
-      turnaroundTime: 8,
-    },
-  ];
-
-  for (const pkgData of packages) {
-    const existing = await TestPackage.findOne({ code: pkgData.code });
-    if (!existing) {
-      await TestPackage.create(pkgData);
-      console.log(`   ✅ Created package: ${pkgData.name}`);
-    } else {
-      console.log(`   ⏭️  Package exists: ${pkgData.name}`);
-    }
   }
 
   // ──────────────── Done ────────────────

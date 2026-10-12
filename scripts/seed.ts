@@ -15,7 +15,6 @@ import Patient from '../src/models/Patient';
 import Hospital from '../src/models/Hospital';
 import Doctor from '../src/models/Doctor';
 import Test from '../src/models/Test';
-import TestPackage from '../src/models/TestPackage';
 import Supplier from '../src/models/Supplier';
 import InventoryItem from '../src/models/InventoryItem';
 import Equipment from '../src/models/Equipment';
@@ -50,7 +49,6 @@ async function seed() {
       await Hospital.deleteMany({});
       await Doctor.deleteMany({});
       await Test.deleteMany({});
-      await TestPackage.deleteMany({});
       await Supplier.deleteMany({});
       await InventoryItem.deleteMany({});
       await Equipment.deleteMany({});
